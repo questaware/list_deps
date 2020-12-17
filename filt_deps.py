@@ -5,7 +5,7 @@ import os
 up = 0
 if len(sys.argv) > 1 :
 	if not sys.argv[1].isdigit() :
-		print('filt_deps [#] [N]')
+		print('filt_deps [#] [N|Y] [ makefile ] ')
 		print(' #  -- Number of directories up to root')
 		print(' N  -- Do not check that file exists')
 		exit()
@@ -14,6 +14,10 @@ if len(sys.argv) > 1 :
 check = 1
 if len(sys.argv) > 2 and sys.argv[2].upper() == 'N' :
 	check = 0
+
+makefile = 'makefile'
+if len(sys.argv) > 3 :
+	makefile = sys.argv[3]
 
 pwd= os.getcwd()
 
@@ -101,5 +105,20 @@ for line in sys.stdin :
 			print('Failure')
 			break
 		rhs = rhs[mo.end():]
+
+print(relpath+'/'+makefile)
+
+try :
+	f = open(makefile.rstrip(),"r")
+	for line in f :
+		mo = re.search('^ *include ([^ ]*)', line)
+		if mo != None :
+			res = relpath+'/'+str(mo.group(1))
+			res = re.sub('[^/]+/[.][.]/','', res)
+			res = re.sub('[^/]+/[.][.]/','', res)
+
+			print(res)
+except :
+	print('<NoMakefile>')
 
 exit()
